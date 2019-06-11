@@ -2,6 +2,7 @@ const express = require('express');
 const mysqldb = require('./db');
 const connection = mysqldb.connection();
 
+var port = process.env.PORT ||  8000;
 const cors = require('cors');
 const bodyParser = require('body-parser');
 
@@ -11,14 +12,21 @@ var corsOptions = {
 	//giả sử node server là http://localhost:8000
 	optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204 
 }
+
+var User = require('./routes/User.js')
 app = express();
+
+
+app.use(bodyParser.urlencoded({ extended: false }));
+
+app.use(bodyParser.json());
+app.use('/user', User);
 
 app.use(cors(corsOptions))
 
-app.use(bodyParser.json());
 
 app.listen(8000, () => {
-	console.log('Server started!');
+	console.log('Server started! - Running on port: ' + port);
 });
 
 // const getShoesList = async (seq, res) => {
@@ -180,6 +188,98 @@ app.route('/api/slider').get((req, res) => {
 	]);
 })
 
+//add product
+app.route('/api/products/add').post((req, res) => {
+
+	var shoes = req.body;
+
+	var sql = `insert into sneaker.shoes(ShoesName,ShoesColor,ShoesPrice,ShoesImg,idtype,idcategory) values('${shoes.ShoesName}','${shoes.ShoesColor}','${shoes.ShoesPrice}','${shoes.ShoesImg}','${shoes.idtype}','${shoes.idcategory}')`;
+
+	connection.query(sql, (err, data) => {
+		if (!err) {
+			res.status(200).json(data);
+			// res.send(data);
+		} else {
+			console.log('Error while performing Query.');
+		}
+	});
+
+	// let ShoesName = req.body.ShoesName;
+	// let ShoesColor = req.body.ShoesColor;
+	// let ShoesPrice = req.body.ShoesPrice;
+	// let ShoesImg = req.body.ShoesImg;
+	// let idtype = req.body.idtype;
+	// let idcategory = req.body.idcategory;
+
+	// let query = "INSERT INTO sneaker.shoes(ShoesName, ShoesColor, ShoesPrice,ShoesImg, idtype, idcategory) VALUES ('" +
+	// 	ShoesName + "', '" + ShoesColor + "', '" + ShoesPrice + "','" + ShoesImg + "','" + idtype + "', '" + idcategory + "')";
+
+	// connection.query(query, (err, data) => {
+	// 	if (!err) {
+	// 		// res.status(200).json(data);
+	// 		 res.send(data);
+	// 	} else {
+	// 		console.log('Error while performing Query.');
+	// 	}
+	// });
+});
+
+//update product
+app.route('/api/products/update/:id').post((req, res) => {
+
+	var shoes = req.body;
+	var id = req.params.id;
+
+	var sql = `update sneaker.shoes set ShoesName = '${shoes.ShoesName}',ShoesColor = '${shoes.ShoesColor}',ShoesPrice = '${shoes.ShoesPrice}',ShoesImg = '${shoes.ShoesImg}',idtype = '${shoes.idtype}',idcategory = '${shoes.idcategory}' where idShoes = '${id}'`;
+
+	connection.query(sql, (err, data) => {
+		if (!err) {
+			res.status(200).json(data);
+			// res.send(data);
+		} else {
+			console.log('Error while performing Query.');
+		}
+	});
+});
+
+//delete product
+app.route('/api/products/delete/:id').post((req, res) => {
+
+	var id = req.params.id;
+	console.log(id)
+	
+	var sql = `delete from sneaker.shoes where idShoes = '${id}'`;
+
+	connection.query(sql, (err, data) => {
+		if (!err) {
+			res.status(200).json(data);
+			// res.send(data);
+		} else {
+			console.log('Error while performing Query.');
+		}
+	});
+});
+
+//Get shoes size
+app.route('/api/products/size/:id').get((req, res) => {
+
+	var id = req.params.id;
+
+	var sql = `select 
+	a.Size
+	from sneaker.size a
+	inner join sneaker.detail b On a.idSize = b.idSize
+	where b.idShoes = '${id}'
+	GROUP BY a.size`;
+
+	connection.query(sql, (err, data) => {
+		if (!err) {
+			res.status(200).json(data);
+		} else {
+			console.log('Error while performing Query.');
+		}
+	});
+});
 
 //Account
 app.route('/api/user/insert').post((req, res) => {
