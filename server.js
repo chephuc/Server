@@ -136,6 +136,21 @@ app.route('/api/category').get((req, res) => {
 	});
 })
 
+//Get Type list
+app.route('/api/type').get((req, res) => {
+	console.log('all type');
+
+	var sql = `select idtype, typeName from sneaker.type`;
+
+	connection.query(sql, (err, rows) => {
+		if (!err) {
+			res.status(200).json(rows);
+		} else {
+			console.log('Error while performing Query.');
+		}
+	});
+})
+
 //Get product list by category id
 app.route('/api/category/:id').get((req, res) => {
 
@@ -193,7 +208,7 @@ app.route('/api/products/add').post((req, res) => {
 
 	var shoes = req.body;
 
-	var sql = `insert into sneaker.shoes(ShoesName,ShoesColor,ShoesPrice,ShoesImg,idtype,idcategory) values('${shoes.ShoesName}','${shoes.ShoesColor}','${shoes.ShoesPrice}','${shoes.ShoesImg}','${shoes.idtype}','${shoes.idcategory}')`;
+	var sql = `insert into sneaker.shoes(ShoesName,ShoesColor,ShoesPrice,ShoesImg,idtype,idcategory) values('${shoes.ShoesName}','${shoes.ShoesColor}',${shoes.ShoesPrice},'${shoes.ShoesImg}',${shoes.idtype},${shoes.idcategory})`;
 
 	connection.query(sql, (err, data) => {
 		if (!err) {
@@ -243,7 +258,7 @@ app.route('/api/products/update/:id').post((req, res) => {
 });
 
 //delete product
-app.route('/api/products/delete/:id').post((req, res) => {
+app.route('/api/products/delete/:id').get((req, res) => {
 
 	var id = req.params.id;
 	console.log(id)
