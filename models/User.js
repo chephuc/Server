@@ -24,5 +24,8 @@ module.exports = db.sequelize.define(
         UsersPhoneNum:{
             type: Sequelize.INTEGER,            
         },
+        UsersPermission:{
+            type: Sequelize.STRING
+        }
     }
 )
