@@ -18,7 +18,6 @@ user.post('/register', (req,res) =>{
         UsersAddress: req.body.UsersAddress,
         UsersPhoneNum: req.body.UsersPhoneNum,
         UsersPermission: string
-
     }
 
     User.findOne({

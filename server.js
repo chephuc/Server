@@ -14,7 +14,11 @@ var corsOptions = {
 }
 
 var User = require('./routes/User.js')
+
 app = express();
+var multer  = require('multer');
+FILEDESTINATION = "uploads/images";
+IMAGEURL = "/images";
 
 
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -23,7 +27,7 @@ app.use(bodyParser.json());
 app.use('/user', User);
 
 app.use(cors(corsOptions))
-
+app.use(IMAGEURL,express.static(FILEDESTINATION));
 
 app.listen(8000, () => {
 	console.log('Server started! - Running on port: ' + port);
@@ -45,6 +49,17 @@ app.listen(8000, () => {
 //     }
 // }
 
+var storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, FILEDESTINATION)
+    },
+    filename: function (req, file, cb) {
+      cb(null, file.fieldname + '-' + Date.now() + '.' + file.mimetype.split('image/')[1])
+    }
+  })
+   
+var upload = multer({ storage: storage })
+
 var productlist = [
 	{ id: '1', proimg: 'assets/images/h1.PNG', name: 'AIR JORDAN III', prodes: 'AIR TRAINER 1', price: '90$' },
 	{ id: '2', proimg: 'assets/images/h2.PNG', name: 'AIR MAX DELUXE', prodes: 'LIFE OF THE PARTY', price: '190$' },
@@ -60,7 +75,7 @@ var productlist = [
 app.route('/api/products').get((req, res) => {
 	console.log('all products');
 
-	var sql = `select idShoes, ShoesName, ShoesColor, ShoesImg, ShoesPrice from sneaker.shoes`;
+	var sql = `select idShoes, ShoesName, ShoesColor, ShoesImg, ShoesPrice, idcategory, idtype from sneaker.shoes`;
 
 	connection.query(sql, (err, rows) => {
 		if (!err) {
@@ -218,34 +233,50 @@ app.route('/api/products/add').post((req, res) => {
 			console.log('Error while performing Query.');
 		}
 	});
+});
 
-	// let ShoesName = req.body.ShoesName;
-	// let ShoesColor = req.body.ShoesColor;
-	// let ShoesPrice = req.body.ShoesPrice;
-	// let ShoesImg = req.body.ShoesImg;
-	// let idtype = req.body.idtype;
-	// let idcategory = req.body.idcategory;
+//add category
+app.route('/api/category/add').post((req, res) => {
 
-	// let query = "INSERT INTO sneaker.shoes(ShoesName, ShoesColor, ShoesPrice,ShoesImg, idtype, idcategory) VALUES ('" +
-	// 	ShoesName + "', '" + ShoesColor + "', '" + ShoesPrice + "','" + ShoesImg + "','" + idtype + "', '" + idcategory + "')";
+	var category = req.body;
 
-	// connection.query(query, (err, data) => {
-	// 	if (!err) {
-	// 		// res.status(200).json(data);
-	// 		 res.send(data);
-	// 	} else {
-	// 		console.log('Error while performing Query.');
-	// 	}
-	// });
+	var sql = `insert into sneaker.category(categoryName) 
+			   values('${category.categoryName}')`;
+
+	connection.query(sql, (err, data) => {
+		if (!err) {
+			res.status(200).json(data);
+			// res.send(data);
+		} else {
+			console.log('Error while performing Query.');
+		}
+	});
+});
+
+//add type
+app.route('/api/type/add').post((req, res) => {
+
+	var type = req.body;
+
+	var sql = `insert into sneaker.type(typeName) values('${type.typeName}')`;
+
+	connection.query(sql, (err, data) => {
+		if (!err) {
+			res.status(200).json(data);
+			// res.send(data);
+		} else {
+			console.log('Error while performing Query.');
+		}
+	});
 });
 
 //update product
-app.route('/api/products/update/:id').post((req, res) => {
+app.route('/api/products/update').post((req, res) => {
 
 	var shoes = req.body;
-	var id = req.params.id;
+	// var id = req.params.id;
 
-	var sql = `update sneaker.shoes set ShoesName = '${shoes.ShoesName}',ShoesColor = '${shoes.ShoesColor}',ShoesPrice = '${shoes.ShoesPrice}',ShoesImg = '${shoes.ShoesImg}',idtype = '${shoes.idtype}',idcategory = '${shoes.idcategory}' where idShoes = '${id}'`;
+	var sql = `update sneaker.shoes set ShoesName = '${shoes.ShoesName}',ShoesColor = '${shoes.ShoesColor}',ShoesPrice = '${shoes.ShoesPrice}',ShoesImg = '${shoes.ShoesImg}',idtype = ${shoes.idtype},idcategory = ${shoes.idcategory} where idShoes = '${shoes.idShoes}'`;
 
 	connection.query(sql, (err, data) => {
 		if (!err) {
@@ -275,6 +306,41 @@ app.route('/api/products/delete/:id').get((req, res) => {
 	});
 });
 
+//delete category
+app.route('/api/category/delete/:id').get((req, res) => {
+
+	var id = req.params.id;
+	console.log(id)
+	
+	var sql = `delete from sneaker.category where idcategory = '${id}'`;
+
+	connection.query(sql, (err, data) => {
+		if (!err) {
+			res.status(200).json(data);
+			// res.send(data);
+		} else {
+			console.log('Error while performing Query.');
+		}
+	});
+});
+
+//delete type
+app.route('/api/type/delete/:id').get((req, res) => {
+
+	var id = req.params.id;
+	console.log(id)
+	
+	var sql = `delete from sneaker.type where idtype = '${id}'`;
+
+	connection.query(sql, (err, data) => {
+		if (!err) {
+			res.status(200).json(data);
+			// res.send(data);
+		} else {
+			console.log('Error while performing Query.');
+		}
+	});
+});
 //Get shoes size
 app.route('/api/products/size/:id').get((req, res) => {
 
@@ -294,6 +360,16 @@ app.route('/api/products/size/:id').get((req, res) => {
 			console.log('Error while performing Query.');
 		}
 	});
+});
+
+// app.route('/upload', upload.single('photo')).post((req, res) => {
+app.post('/upload', upload.single('photo'), (req, res) => {
+	//console.log(req.file)
+	if(req.file){
+		var imageUrl = req.protocol + '://' + req.get('host') + req.baseUrl + IMAGEURL + "/" + req.file.filename;
+		req.file.path = imageUrl;
+        res.json(req.file);
+	}else throw 'error';
 });
 
 //Account
