@@ -240,8 +240,8 @@ app.route('/api/category/add').post((req, res) => {
 
 	var category = req.body;
 
-	var sql = `insert into sneaker.category(categoryName) 
-			   values('${category.categoryName}')`;
+	var sql = `insert into sneaker.category(CategoryName) 
+			   values('${category.CategoryName}')`;
 
 	connection.query(sql, (err, data) => {
 		if (!err) {
@@ -288,6 +288,40 @@ app.route('/api/products/update').post((req, res) => {
 	});
 });
 
+//update type
+app.route('/api/type/update').post((req, res) => {
+
+	var type = req.body;
+	// var id = req.params.id;
+
+	var sql = `update sneaker.type set typeName = '${type.typeName}' where idtype = '${type.idtype}'`;
+
+	connection.query(sql, (err, data) => {
+		if (!err) {
+			res.status(200).json(data);
+			// res.send(data);
+		} else {
+			console.log('Error while performing Query.');
+		}
+	});
+});
+//update category
+app.route('/api/category/update').post((req, res) => {
+
+	var category = req.body;
+	// var id = req.params.id;
+
+	var sql = `update sneaker.category set CategoryName = '${category.CategoryName}' where idcategory = '${category.idcategory}'`;
+
+	connection.query(sql, (err, data) => {
+		if (!err) {
+			res.status(200).json(data);
+			// res.send(data);
+		} else {
+			console.log('Error while performing Query.');
+		}
+	});
+});
 //delete product
 app.route('/api/products/delete/:id').get((req, res) => {
 
