@@ -406,6 +406,41 @@ app.post('/upload', upload.single('photo'), (req, res) => {
 	}else throw 'error';
 });
 
+//add order
+app.route('/api/order/add').post((req, res) => {
+
+	var order = req.body;
+
+	var sql = `insert into sneaker.order(Total,Date,idUsers) values('${order.Total}',now(),'${order.idUsers}')`;
+
+	connection.query(sql, (err, data) => {
+		if (!err) {
+			res.status(200).json(data);
+			// res.send(data);
+		} else {
+			console.log('Error while performing Query.');
+		}
+	});
+});
+
+//update detail
+app.route('/api/detail/update').post((req, res) => {
+
+	var detail = req.body;
+	// var id = req.params.id;
+
+	var sql = `update sneaker.detail set idOrder = '${detail.idOrder}', flag = 'N' where idtype = '${detail.idShoes}'`;
+
+	connection.query(sql, (err, data) => {
+		if (!err) {
+			res.status(200).json(data);
+			// res.send(data);
+		} else {
+			console.log('Error while performing Query.');
+		}
+	});
+});
+
 //Account
 app.route('/api/user/insert').post((req, res) => {
 
