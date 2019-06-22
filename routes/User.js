@@ -54,6 +54,7 @@ user.post('/login', (req,res)=>{
     User.findOne({
         where: {
             UsersName: req.body.UsersName
+            
         }
     })
     .then(user =>{
@@ -61,7 +62,9 @@ user.post('/login', (req,res)=>{
             let token = jwt.sign(user.dataValues, process.env.SECRET_KEY, {
                 expiresIn: 1440
             })
-            res.json({token:token})
+            let decoded = jwt.decode(token, {complete: true});
+            let permission = decoded.payload.UsersPermission;
+            res.json({token:token, permission:permission})
         }else{
             res.send("User does not exist")
         }
