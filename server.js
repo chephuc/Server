@@ -384,7 +384,7 @@ app.route('/api/products/size/:id').get((req, res) => {
 	a.Size
 	from sneaker.size a
 	inner join sneaker.detail b On a.idSize = b.idSize
-	where b.idShoes = '${id}'
+	where b.idShoes = '${id}' and b.flag = 'Y'
 	GROUP BY a.size`;
 
 	connection.query(sql, (err, data) => {
@@ -411,14 +411,26 @@ app.route('/api/order/add').post((req, res) => {
 
 	var order = req.body;
 
-	var sql = `insert into sneaker.order(Total,Date,idUsers) values('${order.Total}',now(),'${order.idUsers}')`;
+	var sql = `insert into sneaker.order(Total,Date,idUsers) values(${order.Total},now(),${order.idUsers})`;
 
 	connection.query(sql, (err, data) => {
 		if (!err) {
-			res.status(200).json(data);
+			// res.status(200).json(data);
 			// res.send(data);
+			var lastId = `SELECT LAST_INSERT_ID() as ID`;
+
+			connection.query(lastId, (err, idLast) => {
+				if (!err) {
+					res.status(200).json(idLast[0]);
+					// res.send(data);
+				} else {
+					console.log('Error while performing Query.');
+					console.log(sql)
+				}
+			});
 		} else {
 			console.log('Error while performing Query.');
+			console.log(sql)
 		}
 	});
 });
@@ -429,12 +441,28 @@ app.route('/api/detail/update').post((req, res) => {
 	var detail = req.body;
 	// var id = req.params.id;
 
-	var sql = `update sneaker.detail set idOrder = '${detail.idOrder}', flag = 'N' where idtype = '${detail.idShoes}'`;
+	var sql = `update sneaker.detail set idOrder = ${detail.idOrder}, flag = 'N' where idShoes = ${detail.idShoes} and idSize = ${detail.idSize}`;
 
 	connection.query(sql, (err, data) => {
 		if (!err) {
 			res.status(200).json(data);
 			// res.send(data);
+		} else {
+			console.log('Error while performing Query.');
+			console.log(sql)
+		}
+	});
+});
+
+app.route('/api/size').post((req, res) => {
+
+	var size = req.body;
+
+	var sql = `select idSize from sneaker.size where Size = ${size.Size}`;
+
+	connection.query(sql, (err, data) => {
+		if (!err) {
+			res.status(200).json(data[0]);
 		} else {
 			console.log('Error while performing Query.');
 		}
