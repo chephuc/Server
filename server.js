@@ -75,7 +75,7 @@ var productlist = [
 app.route('/api/products').get((req, res) => {
 	console.log('all products');
 
-	var sql = `select idShoes, ShoesName, ShoesColor, ShoesImg, ShoesPrice, idcategory, idtype from sneaker.shoes`;
+	var sql = `select idShoes, ShoesName, ShoesColor, ShoesImg, ShoesPrice, idcategory, idtype from sneaker.shoes where flag = 'Y'`;
 
 	connection.query(sql, (err, rows) => {
 		if (!err) {
@@ -89,7 +89,7 @@ app.route('/api/products').get((req, res) => {
 app.route('/api/products/newreleases').get((req, res) => {
 	console.log('all products new releases');
 
-	var sql = `select idShoes, ShoesName, ShoesColor, ShoesImg, ShoesPrice from sneaker.shoes where idtype = 1 limit 8`;
+	var sql = `select idShoes, ShoesName, ShoesColor, ShoesImg, ShoesPrice from sneaker.shoes where idtype = 1 and flag = 'Y' limit 8`;
 
 	connection.query(sql, (err, rows) => {
 		if (!err) {
@@ -103,7 +103,7 @@ app.route('/api/products/newreleases').get((req, res) => {
 app.route('/api/products/bestseller').get((req, res) => {
 	console.log('all products bestseller');
 
-	var sql = `select idShoes, ShoesName, ShoesColor, ShoesImg, ShoesPrice from sneaker.shoes where idtype = 2 limit 8`;
+	var sql = `select idShoes, ShoesName, ShoesColor, ShoesImg, ShoesPrice from sneaker.shoes where idtype = 2 and flag = 'Y' limit 8`;
 
 	connection.query(sql, (err, rows) => {
 		if (!err) {
@@ -172,7 +172,10 @@ app.route('/api/category/:id').get((req, res) => {
 	var id = req.params.id;
 	console.log(id)
 
-	var sql = `select idShoes, ShoesName, ShoesColor, ShoesImg, ShoesPrice from sneaker.shoes where idcategory = '${id}'`;
+	var sql = `select idShoes, ShoesName, ShoesColor, ShoesImg, ShoesPrice from sneaker.shoes where idcategory = '${id}' 
+		and idShoes in (
+		select idShoes from sneaker.detail where flag = 'Y'
+		) and flag = 'Y' group by idShoes`;
 
 	connection.query(sql, (err, data) => {
 		if (!err) {
@@ -223,7 +226,7 @@ app.route('/api/products/add').post((req, res) => {
 
 	var shoes = req.body;
 
-	var sql = `insert into sneaker.shoes(ShoesName,ShoesColor,ShoesPrice,ShoesImg,idtype,idcategory) values('${shoes.ShoesName}','${shoes.ShoesColor}',${shoes.ShoesPrice},'${shoes.ShoesImg}',${shoes.idtype},${shoes.idcategory})`;
+	var sql = `insert into sneaker.shoes(ShoesName,ShoesColor,ShoesPrice,ShoesImg,idtype,idcategory,flag) values('${shoes.ShoesName}','${shoes.ShoesColor}',${shoes.ShoesPrice},'${shoes.ShoesImg}',${shoes.idtype},${shoes.idcategory},'Y')`;
 
 	connection.query(sql, (err, data) => {
 		if (!err) {
@@ -328,7 +331,7 @@ app.route('/api/products/delete/:id').get((req, res) => {
 	var id = req.params.id;
 	console.log(id)
 	
-	var sql = `delete from sneaker.shoes where idShoes = '${id}'`;
+	var sql = `update sneaker.shoes set flag = 'N' where idShoes = ${id}`;
 
 	connection.query(sql, (err, data) => {
 		if (!err) {
@@ -402,7 +405,8 @@ app.post('/upload', upload.single('photo'), (req, res) => {
 	if(req.file){
 		var imageUrl = req.protocol + '://' + req.get('host') + req.baseUrl + IMAGEURL + "/" + req.file.filename;
 		req.file.path = imageUrl;
-        res.json(req.file);
+		res.json(req.file);
+		console.log(imageUrl)
 	}else throw 'error';
 });
 
