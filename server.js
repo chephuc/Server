@@ -9,7 +9,7 @@ const bodyParser = require('body-parser');
 var corsOptions = {
 	origin: 'http://localhost:4200',
 	//domain được phép gọi request mà server chấp nhận (vd: request đến từ http://localhost:4200  được server cho phép), 
-	//giả sử node server là http://localhost:8000
+	//giả sử node server là http://localhost:80
 	optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204 
 }
 
@@ -29,7 +29,28 @@ app.use('/user', User);
 app.use(cors(corsOptions))
 app.use(IMAGEURL,express.static(FILEDESTINATION));
 
-app.listen(8000, () => {
+//Allow ACAC
+app.use(function (req, res, next) {
+
+    // Website you wish to allow to connect
+    res.setHeader('Access-Control-Allow-Origin', '*');
+
+    // Request methods you wish to allow
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+
+    // Request headers you wish to allow
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+
+    // Set to true if you need the website to include cookies in the requests sent
+    // to the API (e.g. in case you use sessions)
+    res.setHeader('Access-Control-Allow-Credentials', true);
+
+    // Pass to next layer of middleware
+    next();
+});
+
+
+app.listen(port, () => {
 	console.log('Server started! - Running on port: ' + port);
 });
 
@@ -81,7 +102,7 @@ app.route('/api/products').get((req, res) => {
 		if (!err) {
 			res.status(200).json(rows);
 		} else {
-			console.log('Error while performing Query.');
+			console.log('Error while performing Query. get all product');
 		}
 	});
 });
@@ -95,7 +116,7 @@ app.route('/api/products/newreleases').get((req, res) => {
 		if (!err) {
 			res.status(200).json(rows);
 		} else {
-			console.log('Error while performing Query.');
+			console.log('Error while performing Query. get product new releases');
 		}
 	});
 });
@@ -109,7 +130,7 @@ app.route('/api/products/bestseller').get((req, res) => {
 		if (!err) {
 			res.status(200).json(rows);
 		} else {
-			console.log('Error while performing Query.');
+			console.log('Error while performing Query. get product best seller');
 		}
 	});
 });
@@ -125,7 +146,7 @@ app.route('/api/products/:id').get((req, res) => {
 		if (!err) {
 			res.status(200).json(data[0]);
 		} else {
-			console.log('Error while performing Query.');
+			console.log('Error while performing Query. get product detail');
 		}
 	});
 
@@ -146,7 +167,7 @@ app.route('/api/category').get((req, res) => {
 		if (!err) {
 			res.status(200).json(rows);
 		} else {
-			console.log('Error while performing Query.');
+			console.log('Error while performing Query. get category');
 		}
 	});
 })
@@ -161,7 +182,7 @@ app.route('/api/type').get((req, res) => {
 		if (!err) {
 			res.status(200).json(rows);
 		} else {
-			console.log('Error while performing Query.');
+			console.log('Error while performing Query. get type');
 		}
 	});
 })
@@ -181,7 +202,7 @@ app.route('/api/category/:id').get((req, res) => {
 		if (!err) {
 			res.status(200).json(data);
 		} else {
-			console.log('Error while performing Query.');
+			console.log('Error while performing Query. get category products');
 		}
 	});
 });
@@ -233,7 +254,7 @@ app.route('/api/products/add').post((req, res) => {
 			res.status(200).json(data);
 			// res.send(data);
 		} else {
-			console.log('Error while performing Query.');
+			console.log('Error while performing Query. add product');
 		}
 	});
 });
@@ -251,7 +272,7 @@ app.route('/api/category/add').post((req, res) => {
 			res.status(200).json(data);
 			// res.send(data);
 		} else {
-			console.log('Error while performing Query.');
+			console.log('Error while performing Query. add category');
 		}
 	});
 });
@@ -268,7 +289,7 @@ app.route('/api/type/add').post((req, res) => {
 			res.status(200).json(data);
 			// res.send(data);
 		} else {
-			console.log('Error while performing Query.');
+			console.log('Error while performing Query. add type');
 		}
 	});
 });
@@ -286,7 +307,7 @@ app.route('/api/products/update').post((req, res) => {
 			res.status(200).json(data);
 			// res.send(data);
 		} else {
-			console.log('Error while performing Query.');
+			console.log('Error while performing Query. update product');
 		}
 	});
 });
@@ -304,7 +325,7 @@ app.route('/api/type/update').post((req, res) => {
 			res.status(200).json(data);
 			// res.send(data);
 		} else {
-			console.log('Error while performing Query.');
+			console.log('Error while performing Query. update type');
 		}
 	});
 });
@@ -321,7 +342,7 @@ app.route('/api/category/update').post((req, res) => {
 			res.status(200).json(data);
 			// res.send(data);
 		} else {
-			console.log('Error while performing Query.');
+			console.log('Error while performing Query. update category');
 		}
 	});
 });
@@ -338,7 +359,7 @@ app.route('/api/products/delete/:id').get((req, res) => {
 			res.status(200).json(data);
 			// res.send(data);
 		} else {
-			console.log('Error while performing Query.');
+			console.log('Error while performing Query. delete product');
 		}
 	});
 });
@@ -356,7 +377,7 @@ app.route('/api/category/delete/:id').get((req, res) => {
 			res.status(200).json(data);
 			// res.send(data);
 		} else {
-			console.log('Error while performing Query.');
+			console.log('Error while performing Query. delete category');
 		}
 	});
 });
@@ -374,7 +395,7 @@ app.route('/api/type/delete/:id').get((req, res) => {
 			res.status(200).json(data);
 			// res.send(data);
 		} else {
-			console.log('Error while performing Query.');
+			console.log('Error while performing Query. delete type');
 		}
 	});
 });
@@ -394,7 +415,7 @@ app.route('/api/products/size/:id').get((req, res) => {
 		if (!err) {
 			res.status(200).json(data);
 		} else {
-			console.log('Error while performing Query.');
+			console.log('Error while performing Query. get size of product');
 		}
 	});
 });
@@ -428,7 +449,7 @@ app.route('/api/order/add').post((req, res) => {
 					res.status(200).json(idLast[0]);
 					// res.send(data);
 				} else {
-					console.log('Error while performing Query.');
+					console.log('Error while performing Query. add order');
 					console.log(sql)
 				}
 			});
@@ -452,7 +473,7 @@ app.route('/api/detail/update').post((req, res) => {
 			res.status(200).json(data);
 			// res.send(data);
 		} else {
-			console.log('Error while performing Query.');
+			console.log('Error while performing Query. update detail');
 			console.log(sql)
 		}
 	});
@@ -468,7 +489,7 @@ app.route('/api/size').post((req, res) => {
 		if (!err) {
 			res.status(200).json(data[0]);
 		} else {
-			console.log('Error while performing Query.');
+			console.log('Error while performing Query. get size in admin');
 		}
 	});
 });
