@@ -7,7 +7,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 
 var corsOptions = {
-	origin: 'http://localhost:4200',
+	origin: 'http://angularserver.hopto.org',
 	//domain được phép gọi request mà server chấp nhận (vd: request đến từ http://localhost:4200  được server cho phép), 
 	//giả sử node server là http://localhost:80
 	optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204 
@@ -117,6 +117,7 @@ app.route('/api/products/newreleases').get((req, res) => {
 			res.status(200).json(rows);
 		} else {
 			console.log('Error while performing Query. get product new releases');
+			console.log(sql)
 		}
 	});
 });
@@ -131,6 +132,7 @@ app.route('/api/products/bestseller').get((req, res) => {
 			res.status(200).json(rows);
 		} else {
 			console.log('Error while performing Query. get product best seller');
+			console.log(sql)
 		}
 	});
 });
@@ -168,6 +170,7 @@ app.route('/api/category').get((req, res) => {
 			res.status(200).json(rows);
 		} else {
 			console.log('Error while performing Query. get category');
+			console.log(sql)
 		}
 	});
 })
@@ -490,6 +493,55 @@ app.route('/api/size').post((req, res) => {
 			res.status(200).json(data[0]);
 		} else {
 			console.log('Error while performing Query. get size in admin');
+		}
+	});
+});
+
+//Get size detail
+app.route('/api/size/detail').get((req, res) => {
+	console.log('all size detail');
+
+	var sql = `select a.idShoes, a.idOrder, a.idSize, b.ShoesName, c.Size
+			from sneaker.detail a, sneaker.shoes b, sneaker.size c
+			where a.idShoes = b.idShoes and a.idSize = c.idSize order by a.idShoes`;
+
+	connection.query(sql, (err, rows) => {
+		if (!err) {
+			res.status(200).json(rows);
+		} else {
+			console.log('Error while performing Query. get all size detail');
+		}
+	});
+});
+
+//Get all size
+app.route('/api/size/all').get((req, res) => {
+	console.log('all size');
+
+	var sql = `select idSize, Size from sneaker.size`;
+
+	connection.query(sql, (err, rows) => {
+		if (!err) {
+			res.status(200).json(rows);
+		} else {
+			console.log('Error while performing Query. get all size');
+		}
+	});
+});
+
+//add detail
+app.route('/api/detail/add').post((req, res) => {
+
+	var sizedetail = req.body;
+
+	var sql = `insert into sneaker.detail(idShoes, idSize, flag) values(${sizedetail.idShoes},${sizedetail.idSize},'Y')`;
+
+	connection.query(sql, (err, data) => {
+		if (!err) {
+			res.status(200).json(data);
+		} else {
+			console.log('Error while performing Query. add detail size');
+			console.log(sql)
 		}
 	});
 });
