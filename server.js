@@ -546,6 +546,38 @@ app.route('/api/detail/add').post((req, res) => {
 	});
 });
 
+//Get user
+app.route('/api/getusers').get((req, res) => {
+	console.log('all users');
+
+	var sql = `SELECT idUsers, UsersName, UsersEmail, UsersAddress, UsersPhoneNum, UsersPermission FROM sneaker.users`;
+
+	connection.query(sql, (err, rows) => {
+		if (!err) {
+			res.status(200).json(rows);
+		} else {
+			console.log('Error while performing Query. get all users');
+		}
+	});
+});
+
+//Get orders
+app.route('/api/getorders').get((req, res) => {
+	console.log('all users');
+
+	var sql = `select a.idOrder, a.Total, a.Date, a.idUsers, b.UsersName
+	from sneaker.order a, sneaker.users b
+	where a.idOrder = b.idUsers order by a.idOrder`;
+
+	connection.query(sql, (err, rows) => {
+		if (!err) {
+			res.status(200).json(rows);
+		} else {
+			console.log('Error while performing Query. get all orders');
+		}
+	});
+});
+
 //Account
 app.route('/api/user/insert').post((req, res) => {
 
