@@ -7,7 +7,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 
 var corsOptions = {
-	origin: 'http://angularserver.hopto.org',
+	origin: 'http://nodeserver.hopto.org:4200',
 	//domain được phép gọi request mà server chấp nhận (vd: request đến từ http://localhost:4200  được server cho phép), 
 	//giả sử node server là http://localhost:80
 	optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204 
@@ -567,7 +567,7 @@ app.route('/api/getorders').get((req, res) => {
 
 	var sql = `select a.idOrder, a.Total, a.Date, a.idUsers, b.UsersName
 	from sneaker.order a, sneaker.users b
-	where a.idOrder = b.idUsers order by a.idOrder`;
+	where a.idUsers = b.idUsers order by a.idOrder`;
 
 	connection.query(sql, (err, rows) => {
 		if (!err) {
